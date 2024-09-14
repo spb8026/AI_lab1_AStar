@@ -3,7 +3,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 
-
 public class lab1 {
     static class MapColor {
         public String name;
@@ -15,39 +14,28 @@ public class lab1 {
         }
     }
 
-    public static class Node {
-        public String name;
+    public static class Node implements Comparable<Node> {
         public Node parent;
         public int x;
         public int y;
         public double heuristic;
 
-        public Node(String name,int x, int y, double heuristic) {
-            this.name = name;
+        public Node(int x, int y, double heuristic) {
             this.parent = null;
             this.x = x;
             this.y = y;
             this.heuristic = heuristic;
         }
 
-        public Node(String name,int x, int y,Node parent,double heuristic) {
-            this.name = name;
+        public Node(int x, int y, Node parent, double heuristic) {
             this.parent = parent;
             this.x = x;
             this.y = y;
             this.heuristic = heuristic;
         }
 
-        public void setNodeParent(Node parent) {
-            this.parent = parent;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Node getParent() {
-            return parent;
+        public int compareTo(Node other) {
+            return Double.compare(this.heuristic, other.heuristic);
         }
     }
 
@@ -62,37 +50,41 @@ public class lab1 {
     static MapColor FOOTPATH = new MapColor("#000000", 1);
     static MapColor OB = new MapColor("#CD0065", 1);
 
-    static double heuristic(int x, int y, int target_x, int target_y)
-    {
-        return Math.sqrt(Math.pow(x-target_x,2)+Math.pow(y-target_y, 2));
+    static double heuristic(int x, int y, int targetX, int targetY) {
+        return Math.sqrt(Math.pow(x - targetX, 2) + Math.pow(y - targetY, 2));
     }
 
-    public static Node findPath(MapColor[][] mapArray,int startx, int starty, int target_x, int target_y)
-    {
+    public static Node findPath(MapColor[][] mapArray, int startX, int startY, int targetX, int targetY) {
         PriorityQueue<Node> queue = new PriorityQueue<>();
-        Set<Node> visited = new HashSet<>();
-        Node start = new Node(mapArray[startx][starty].name,0,0,heuristic(startx, starty, startx, starty));
+        Set<String> visited = new HashSet<>();
+        Node start = new Node(startX, startY, heuristic(startX, startY, targetX, targetY));
         int rows = mapArray.length;
         int cols = mapArray[0].length;
         queue.add(start);
-        visited.add(start);
+        visited.add(startX + "," + startY);
+
         while (!queue.isEmpty()) {
             Node curNode = queue.poll();
-            if (curNode.x == target_x && curNode.y == target_y)
-            {
+
+            if (curNode.x == targetX && curNode.y == targetY) {
                 return curNode;
             }
+
             for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
                 for (int colOffset = -1; colOffset <= 1; colOffset++) {
                     if (rowOffset == 0 && colOffset == 0) {
                         continue;
                     }
-    
+
                     int newRow = curNode.x + rowOffset;
                     int newCol = curNode.y + colOffset;
-    
+
                     if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                        queue.add(new Node(mapArray[newRow][newCol].name, newRow, newCol, curNode, heuristic(newRow, newCol, target_x, target_y) +mapArray[newRow][newCol].speed));
+                        String nodeKey = newRow + "," + newCol;
+                        if (!visited.contains(nodeKey)) {
+                            queue.add(new Node(newRow, newCol, curNode, heuristic(newRow, newCol, targetX, targetY) + mapArray[newRow][newCol].speed));
+                            visited.add(nodeKey);
+                        }
                     }
                 }
             }
@@ -103,9 +95,6 @@ public class lab1 {
     public static void main(String[] args) {
         String terrainImageName = "terrain.png";
         String pathFileName = "brown.txt";
-        // String elevationFileName = args[1];
-        // String pathFileName = args[2];
-        // String outputImageFilename = args[3];
         MapColor[][] mapArray = new MapColor[395][500];
 
         try {
@@ -118,16 +107,24 @@ public class lab1 {
                     mapArray[x][y] = new MapColor(hexColor, 0);
                 }
             }
+
             Scanner pathScan = new Scanner(new File(pathFileName));
             ArrayList<int[]> targets = new ArrayList<>();
             while (pathScan.hasNext()) {
                 targets.add(new int[]{pathScan.nextInt(), pathScan.nextInt()});
             }
             pathScan.close();
-            System.out.println((findPath(mapArray,0,0,targets.getLast()[0],targets.getLast()[1]).x));
+
+            int[] lastTarget = targets.get(targets.size() - 1);
+            Node path = findPath(mapArray, 0, 0, lastTarget[0], lastTarget[1]);
+
+            if (path != null) {
+                System.out.println("Path found! Final position: (" + path.x + ", " + path.y + ")");
+            } else {
+                System.out.println("Path not found.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
     }
 }
