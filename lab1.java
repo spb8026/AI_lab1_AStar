@@ -67,11 +67,11 @@ public class lab1 {
         return Math.sqrt(Math.pow(x-target_x,2)+Math.pow(y-target_y, 2));
     }
 
-    public int findPath(MapColor[][] mapArray, int target_x, int target_y)
+    public static Node findPath(MapColor[][] mapArray,int startx, int starty, int target_x, int target_y)
     {
         PriorityQueue<Node> queue = new PriorityQueue<>();
         Set<Node> visited = new HashSet<>();
-        Node start = new Node(mapArray[0][0].name,0,0,heuristic(target_x, target_y, 0, 0));
+        Node start = new Node(mapArray[startx][starty].name,0,0,heuristic(startx, starty, startx, starty));
         int rows = mapArray.length;
         int cols = mapArray[0].length;
         queue.add(start);
@@ -80,7 +80,7 @@ public class lab1 {
             Node curNode = queue.poll();
             if (curNode.x == target_x && curNode.y == target_y)
             {
-                break;
+                return curNode;
             }
             for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
                 for (int colOffset = -1; colOffset <= 1; colOffset++) {
@@ -92,11 +92,12 @@ public class lab1 {
                     int newCol = curNode.y + colOffset;
     
                     if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                        queue.add(new Node(mapArray[newRow][newCol].name, newRow, newCol, curNode, heuristic(newRow, newCol, target_x, target_y) +mapArray[newRow][newCol].speed))
+                        queue.add(new Node(mapArray[newRow][newCol].name, newRow, newCol, curNode, heuristic(newRow, newCol, target_x, target_y) +mapArray[newRow][newCol].speed));
                     }
                 }
             }
         }
+        return null;
     }
 
     public static void main(String[] args) {
@@ -123,8 +124,10 @@ public class lab1 {
                 targets.add(new int[]{pathScan.nextInt(), pathScan.nextInt()});
             }
             pathScan.close();
+            System.out.println((findPath(mapArray,0,0,targets.getLast()[0],targets.getLast()[1]).x));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
     }
 }
