@@ -6,11 +6,12 @@ import java.awt.Color;
 
 public class lab1 {
     static class MapColor {
-        public String name;
+        public String color;
         public double speed;
+        public double elevation;
 
-        public MapColor(String name, double speed) {
-            this.name = name;
+        public MapColor(String color, double speed) {
+            this.color = color;
             this.speed = speed;
         }
     }
@@ -68,21 +69,21 @@ public class lab1 {
 
     }
 
-    static MapColor OPEN_LAND_COLOR = new MapColor("#F89412", 4.82803);
-    static MapColor ROUGH_MEADOW = new MapColor("#FFC000", 3.21869);
-    static MapColor EASY_MOVEMENT_FOREST = new MapColor("#FFFFFF", 4.02336);
-    static MapColor SLOW_RUN_FOREST = new MapColor("#02D03C", 3.21869);
-    static MapColor WALK_FOREST = new MapColor("#028828", 2.41402);
-    static MapColor IMPASSIBLE_VEGETATION = new MapColor("#054918", 0.804672);
-    static MapColor LAKE_SWAMP_MARSH = new MapColor("#0000FF", 1.60934);
-    static MapColor PAVED_ROAD = new MapColor("#473303", 6.43738);
-    static MapColor FOOTPATH = new MapColor("#000000", 5.6327);
+    static MapColor OPEN_LAND_COLOR = new MapColor("#F89412", 5.5);
+    static MapColor ROUGH_MEADOW = new MapColor("#FFC000", 2.5);
+    static MapColor EASY_MOVEMENT_FOREST = new MapColor("#FFFFFF", 5);
+    static MapColor SLOW_RUN_FOREST = new MapColor("#02D03C", 4);
+    static MapColor WALK_FOREST = new MapColor("#028828", 3);
+    static MapColor IMPASSIBLE_VEGETATION = new MapColor("#054918", 1);
+    static MapColor LAKE_SWAMP_MARSH = new MapColor("#0000FF", .2);
+    static MapColor PAVED_ROAD = new MapColor("#473303", 7);
+    static MapColor FOOTPATH = new MapColor("#000000", 6);
     static MapColor OB = new MapColor("#CD0065", 0);
 
-    public static Node findPath(MapColor[][] mapArray, int startX, int startY, int targetX, int targetY) {
+    public static Node findPath(MapColor[][] mapArray, double[][] elevationValues, int startX, int startY, int targetX, int targetY) {
         PriorityQueue<Node> queue = new PriorityQueue<>();
         Map<String, Node> visitedNodes = new HashMap<>(); // Keeps track of visited nodes with their shortest path
-        Node start = new Node(startX, startY, mapArray[startX][startY].name, mapArray[startX][startY].speed);
+        Node start = new Node(startX, startY, mapArray[startY][startX].color, mapArray[startY][startX].speed);
         start.settimeToReach(0);
         start.setF(0);
         int rows = mapArray.length;
@@ -102,35 +103,42 @@ public class lab1 {
                     if (rowOffset == 0 && colOffset == 0) {
                         continue;
                     }
-    
-                    int newRow = curNode.x + rowOffset;
-                    int newCol = curNode.y + colOffset;
+
+                    int newRow = curNode.y + rowOffset;
+                    int newCol = curNode.x + colOffset;
+                    
     
                     if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                        double newTimeToReach = curNode.timeToReach;
-                        double newTotalDistance = curNode.totalDistance;
+                        double horizontalDistance = 0;
                         if (rowOffset == 0 && colOffset != 0) {
-                            newTimeToReach += 0.01029 / mapArray[newRow][newCol].speed;
-                            newTotalDistance += 0.01029;
+                            horizontalDistance = 7.55; // Latitude
                         } else if (rowOffset != 0 && colOffset == 0) {
-                            newTimeToReach += 0.00755 / mapArray[newRow][newCol].speed;
-                            newTotalDistance += 0.00755;
+                            horizontalDistance = 10.29; // Longitude
                         } else if (rowOffset != 0 && colOffset != 0) {
-                            newTimeToReach += 0.01276 / mapArray[newRow][newCol].speed;
-                            newTotalDistance += 0.012765;
+                            horizontalDistance = 12.76; // Diagonal
                         }
+
+                        double elevationDifference = elevationValues[newRow][newCol] - elevationValues[curNode.y][curNode.x];
+                        double distance3D = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(elevationDifference, 2));
+    
+                        double newTimeToReach = curNode.timeToReach + distance3D / mapArray[newRow][newCol].speed;
+                        double newTotalDistance = curNode.totalDistance + distance3D;
     
                         String nodeKey = newRow + "," + newCol;
                         Node newNode = visitedNodes.get(nodeKey);
     
                         if (newNode == null || newTimeToReach < newNode.timeToReach) {
                             if (newNode == null) {
-                                newNode = new Node(newRow, newCol, curNode, mapArray[newRow][newCol].name, mapArray[newRow][newCol].speed);
+                                newNode = new Node(newCol, newRow, curNode, mapArray[newRow][newCol].color, mapArray[newRow][newCol].speed);
                             }
                             newNode.timeToReach = newTimeToReach;
                             newNode.setTotalDistance(newTotalDistance);
                             newNode.setParent(curNode);
-                            newNode.setF(newTimeToReach + heuristic(newNode.x, newNode.y, targetX, targetY));
+    
+                            // Use heuristic with elevation included
+                            double heuristicValue = heuristic(newCol, newRow, elevationValues[newRow][newCol], targetX, targetY, elevationValues[targetY][targetX]);
+                            newNode.setF(newTimeToReach + heuristicValue);
+    
                             queue.add(newNode);
                             visitedNodes.put(nodeKey, newNode);
                         }
@@ -140,25 +148,43 @@ public class lab1 {
         }
         return null;
     }
+
+    static double getDisance(int x, int y,int z, int x_2, int y_2, int z_2)
+    {
+        return Math.sqrt(Math.pow(x-x_2, 2)+Math.pow(y-y_2, 2)+Math.pow(z-z_2, 2));
+    }
     
 
-    static double heuristic(int x, int y, int targetX, int targetY) {
-        return Math.sqrt(Math.pow(x - targetX, 2) + Math.pow(y - targetY, 2));
+static double heuristic(int x, int y, double z, int targetX, int targetY, double targetZ) {
+    return Math.sqrt(Math.pow(x - targetX, 2) * Math.pow(10.29, 2) + Math.pow(y - targetY, 2) * Math.pow(7.55, 2) + Math.pow(z - targetZ, 2));
+}
+
+    public static void makePath(Node endNode, BufferedImage image, int[] targets) {
+        Node currentNode = endNode;
+        while (currentNode != null) {
+            if (currentNode.y >= 0 && currentNode.y < image.getHeight() && currentNode.x >= 0 && currentNode.x < image.getWidth()) {
+            image.setRGB(currentNode.x, currentNode.y, Color.PINK.getRGB());
+            System.out.println(currentNode.x +"," + currentNode.y);
+            }
+            currentNode = currentNode.parent;
+        }
     }
 
-    public static void makePath(Node endNode, BufferedImage image) {
-        Node currentNode = endNode;
-        
-        while (currentNode != null) {
-            image.setRGB(currentNode.y, currentNode.x, Color.PINK.getRGB()); // x is row, y is column
-            currentNode = currentNode.parent;
+    public static void drawTargets(BufferedImage image, int[] targets)
+    {
+        for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+            for (int colOffset = -1; colOffset <= 1; colOffset++) {
+                image.setRGB(targets[0]+ colOffset, targets[1]+ rowOffset, Color.BLACK.getRGB());
+            }
         }
     }
 
     public static void main(String[] args) {
         String terrainImageName = "terrain.png";
-        String pathFileName = "path.txt";
+        String pathFileName = "red.txt";
+        String elevationFileName = "mpp.txt";
         MapColor[][] mapArray = new MapColor[500][395];
+        double[][] elevationValues = new double[500][395];
 
         try {
             BufferedImage image = ImageIO.read(new File(terrainImageName));
@@ -167,9 +193,34 @@ public class lab1 {
                 for (int x = 0; x < image.getWidth() && x < 395; x++) {
                     int pixelColor = image.getRGB(x, y);
                     String hexColor = String.format("#%06X", (0xFFFFFF & pixelColor));
-                    mapArray[y][x] = new MapColor(hexColor, 0); // Switched from mapArray[x][y] to mapArray[y][x]
+                    switch (hexColor) {
+                        case "#F89412": mapArray[y][x] = OPEN_LAND_COLOR; break;
+                        case "#FFC000": mapArray[y][x] = ROUGH_MEADOW; break;
+                        case "#FFFFFF": mapArray[y][x] = EASY_MOVEMENT_FOREST; break;
+                        case "#02D03C": mapArray[y][x] = SLOW_RUN_FOREST; break;
+                        case "#028828": mapArray[y][x] = WALK_FOREST; break;
+                        case "#054918": mapArray[y][x] = IMPASSIBLE_VEGETATION; break;
+                        case "#0000FF": mapArray[y][x] = LAKE_SWAMP_MARSH; break;
+                        case "#473303": mapArray[y][x] = PAVED_ROAD; break;
+                        case "#000000": mapArray[y][x] = FOOTPATH; break;
+                        default: mapArray[y][x] = OB; break; // Default to impassible or out of bounds
+                    }
                 }
-            }            
+            }
+            Scanner elevationScan = new Scanner(new File(elevationFileName));
+            for (int y = 0; y < 500; y++)
+            {
+                for (int x = 0; x < 395; x++)
+                {
+                 elevationValues[y][x] = elevationScan.nextDouble();
+                }
+                elevationScan.nextDouble();
+                elevationScan.nextDouble();
+                elevationScan.nextDouble();
+                elevationScan.nextDouble();
+                elevationScan.nextDouble();
+            }  
+            elevationScan.close();
 
             Scanner pathScan = new Scanner(new File(pathFileName));
             ArrayList<int[]> targets = new ArrayList<>();
@@ -181,20 +232,20 @@ public class lab1 {
             int startY = targets.get(0)[1];
             double totalDist = 0;
             for (int i = 1; i < targets.size(); i++) {
-                Node completed = findPath(mapArray, startX, startY, targets.get(i)[0], targets.get(i)[1]); // Fix: Y-coordinate for target
+                Node completed = findPath(mapArray, elevationValues, startX, startY, targets.get(i)[0], targets.get(i)[1]);
                 
                 if (completed != null) {
-                    totalDist += completed.timeToReach;
-                    makePath(completed, image);  // Pass the image to draw the path
+                    totalDist += completed.totalDistance;
+                    makePath(completed, image,targets.get(i));  // Pass the image to draw the path
                     startX = targets.get(i)[0];
                     startY = targets.get(i)[1];
+                    drawTargets(image, targets.get(i));
                 }
             }
-    
-            // Save the image with the path drawn
-            File outputFile = new File(terrainImageName+"_solution.png");
+            System.out.println(totalDist);
+            File outputFile = new File(pathFileName + "_" + terrainImageName);
             ImageIO.write(image, "png", outputFile);
-            System.out.println("Path drawn and saved to: " + terrainImageName+"_solution");
+            System.out.println("Path drawn and saved to: " + terrainImageName);
 
         } catch (Exception e) {
             e.printStackTrace();
