@@ -115,7 +115,7 @@ public class lab1 {
                         } else if (rowOffset != 0 && colOffset == 0) {
                             horizontalDistance = 7.55; // Longitude
                         } else if (rowOffset != 0 && colOffset != 0) {
-                            horizontalDistance = 12.76; // Diagonal
+                            horizontalDistance = 12.7627034754; // Diagonal
                         }
 
                         double elevationDifference = elevationValues[newRow][newCol] - elevationValues[curNode.y][curNode.x];
