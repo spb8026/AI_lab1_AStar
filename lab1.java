@@ -163,8 +163,7 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
         Node currentNode = endNode;
         while (currentNode != null) {
             if (currentNode.y >= 0 && currentNode.y < image.getHeight() && currentNode.x >= 0 && currentNode.x < image.getWidth()) {
-            image.setRGB(currentNode.x, currentNode.y, Color.PINK.getRGB());
-            System.out.println(currentNode.x +"," + currentNode.y);
+            image.setRGB(currentNode.x, currentNode.y, new Color(118,63,231).getRGB());
             }
             currentNode = currentNode.parent;
         }
@@ -183,10 +182,14 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
     }
 
     public static void main(String[] args) {
-        String terrainImageName = args[0];
-        String elevationFileName = args[1];
-        String pathFileName = args[2];
-        String output_image_filename = args[3];
+        // String terrainImageName = args[0];
+        // String elevationFileName = args[1];
+        // String pathFileName = args[2];
+        // String output_image_filename = args[3];
+        String terrainImageName = "terrain.png";
+        String elevationFileName = "mpp.txt";
+        String pathFileName = "path.txt";
+        String output_image_filename = "terrain_solution.png";
         MapColor[][] mapArray = new MapColor[500][395];
         double[][] elevationValues = new double[500][395];
 
@@ -249,7 +252,6 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
             System.out.println(totalDist);
             File outputFile = new File(output_image_filename);
             ImageIO.write(image, "png", outputFile);
-            System.out.println("Path drawn and saved to: " + terrainImageName);
 
         } catch (Exception e) {
             e.printStackTrace();
