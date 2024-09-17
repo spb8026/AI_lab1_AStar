@@ -182,14 +182,14 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
     }
 
     public static void main(String[] args) {
-        // String terrainImageName = args[0];
-        // String elevationFileName = args[1];
-        // String pathFileName = args[2];
-        // String output_image_filename = args[3];
-        String terrainImageName = "terrain.png";
-        String elevationFileName = "mpp.txt";
-        String pathFileName = "path.txt";
-        String output_image_filename = "terrain_solution.png";
+        String terrainImageName = args[0];
+        String elevationFileName = args[1];
+        String pathFileName = args[2];
+        String output_image_filename = args[3];
+        // String terrainImageName = "terrain.png";
+        // String elevationFileName = "mpp.txt";
+        // String pathFileName = "path.txt";
+        // String output_image_filename = "terrain_solution.png";
         MapColor[][] mapArray = new MapColor[500][395];
         double[][] elevationValues = new double[500][395];
 
