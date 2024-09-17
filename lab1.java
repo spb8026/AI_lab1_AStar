@@ -111,9 +111,9 @@ public class lab1 {
                     if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
                         double horizontalDistance = 0;
                         if (rowOffset == 0 && colOffset != 0) {
-                            horizontalDistance = 7.55; // Latitude
+                            horizontalDistance = 10.29; // Latitude
                         } else if (rowOffset != 0 && colOffset == 0) {
-                            horizontalDistance = 10.29; // Longitude
+                            horizontalDistance = 7.55; // Longitude
                         } else if (rowOffset != 0 && colOffset != 0) {
                             horizontalDistance = 12.76; // Diagonal
                         }
@@ -149,7 +149,7 @@ public class lab1 {
         return null;
     }
 
-    static double getDisance(int x, int y,int z, int x_2, int y_2, int z_2)
+    static double getDistance(int x, int y,int z, int x_2, int y_2, int z_2)
     {
         return Math.sqrt(Math.pow(x-x_2, 2)+Math.pow(y-y_2, 2)+Math.pow(z-z_2, 2));
     }
@@ -246,7 +246,7 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
                     makePath(completed, image,targets.get(i));  // Pass the image to draw the path
                     startX = targets.get(i)[0];
                     startY = targets.get(i)[1];
-                    drawTargets(image, targets.get(i));
+                    // drawTargets(image, targets.get(i));
                 }
             }
             System.out.println(totalDist);
