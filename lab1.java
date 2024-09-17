@@ -174,15 +174,19 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
     {
         for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
             for (int colOffset = -1; colOffset <= 1; colOffset++) {
-                image.setRGB(targets[0]+ colOffset, targets[1]+ rowOffset, Color.BLACK.getRGB());
+                if (targets[1]+rowOffset >= 0 && targets[1]+rowOffset < image.getHeight() && targets[0]+colOffset >= 0 && targets[0]+colOffset < image.getWidth()) {
+                    
+                        image.setRGB(targets[0]+ colOffset, targets[1]+ rowOffset, Color.BLACK.getRGB());
+                    }
             }
         }
     }
 
     public static void main(String[] args) {
-        String terrainImageName = "terrain.png";
-        String pathFileName = "red.txt";
-        String elevationFileName = "mpp.txt";
+        String terrainImageName = args[0];
+        String elevationFileName = args[1];
+        String pathFileName = args[2];
+        String output_image_filename = args[3];
         MapColor[][] mapArray = new MapColor[500][395];
         double[][] elevationValues = new double[500][395];
 
@@ -243,7 +247,7 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
                 }
             }
             System.out.println(totalDist);
-            File outputFile = new File(pathFileName + "_" + terrainImageName);
+            File outputFile = new File(output_image_filename);
             ImageIO.write(image, "png", outputFile);
             System.out.println("Path drawn and saved to: " + terrainImageName);
 
