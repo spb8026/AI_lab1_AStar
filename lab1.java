@@ -82,7 +82,7 @@ public class lab1 {
 
     public static Node findPath(MapColor[][] mapArray, double[][] elevationValues, int startX, int startY, int targetX, int targetY) {
         PriorityQueue<Node> queue = new PriorityQueue<>();
-        Map<String, Node> visitedNodes = new HashMap<>(); // Keeps track of visited nodes with their shortest path
+        Map<String, Node> visitedNodes = new HashMap<>(); 
         Node start = new Node(startX, startY, mapArray[startY][startX].color, mapArray[startY][startX].speed);
         start.settimeToReach(0);
         start.setF(0);
@@ -111,11 +111,11 @@ public class lab1 {
                     if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
                         double horizontalDistance = 0;
                         if (rowOffset == 0 && colOffset != 0) {
-                            horizontalDistance = 10.29; // Latitude
+                            horizontalDistance = 10.29; 
                         } else if (rowOffset != 0 && colOffset == 0) {
-                            horizontalDistance = 7.55; // Longitude
+                            horizontalDistance = 7.55; 
                         } else if (rowOffset != 0 && colOffset != 0) {
-                            horizontalDistance = 12.7627034754; // Diagonal
+                            horizontalDistance = 12.7627034754; 
                         }
 
                         double elevationDifference = elevationValues[newRow][newCol] - elevationValues[curNode.y][curNode.x];
@@ -135,7 +135,6 @@ public class lab1 {
                             newNode.setTotalDistance(newTotalDistance);
                             newNode.setParent(curNode);
     
-                            // Use heuristic with elevation included
                             double heuristicValue = heuristic(newCol, newRow, elevationValues[newRow][newCol], targetX, targetY, elevationValues[targetY][targetX]);
                             newNode.setF(newTimeToReach + heuristicValue);
     
@@ -210,7 +209,7 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
                         case "#0000FF": mapArray[y][x] = LAKE_SWAMP_MARSH; break;
                         case "#473303": mapArray[y][x] = PAVED_ROAD; break;
                         case "#000000": mapArray[y][x] = FOOTPATH; break;
-                        default: mapArray[y][x] = OB; break; // Default to impassible or out of bounds
+                        default: mapArray[y][x] = OB; break; 
                     }
                 }
             }
@@ -243,7 +242,7 @@ static double heuristic(int x, int y, double z, int targetX, int targetY, double
                 
                 if (completed != null) {
                     totalDist += completed.totalDistance;
-                    makePath(completed, image,targets.get(i));  // Pass the image to draw the path
+                    makePath(completed, image,targets.get(i)); 
                     startX = targets.get(i)[0];
                     startY = targets.get(i)[1];
                     // drawTargets(image, targets.get(i));
