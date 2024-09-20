@@ -1,0 +1,16 @@
+For my cost function, I calculate the distance whether going horizontally, vertically, or 
+diagnally as well as the difference in elevation, and divide this by the speed of the pixel to travel to to get a speed '
+for traveling across that pixel.
+For my speeds I chose these values:
+Open Land: 5.5
+Rough Meadow: 2.5
+Easy Movement Forest: 5
+Slow Run Forest: 4
+Walk Forest: 3
+Impassible Vegitation: 1
+Lake/Swamp/Marsh: .2
+Paved Road: 6
+Footbath: 7
+OB: 0
+My huerstic value is the 3D distance between that pixel and the goal pixel. This encourages the algorithim to follow
+paths relatilvey closer in distance to the goal.
